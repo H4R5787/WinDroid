@@ -6,4 +6,11 @@ app/build/
 *.iml
 .idea/
 local.properties
+.DS_Store.gradle/
+build/
+**/build/
+local.properties
+.idea/
+*.iml
+*.log
 .DS_Store
