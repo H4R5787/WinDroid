@@ -18,6 +18,7 @@ import org.windroid.core.container.ContainerProfile
 fun ContainersScreen(
     containers: List<ContainerProfile>,
     onCreateNewContainer: () -> Unit,
+    onEditContainer: (ContainerProfile) -> Unit = {},
     onDeleteContainer: (String) -> Unit,
     onNavigateBack: () -> Unit
 ) {
@@ -99,6 +100,12 @@ fun ContainersScreen(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.End
                         ) {
+                            TextButton(
+                                onClick = { onEditContainer(container) }
+                            ) {
+                                Text("Configure", color = MaterialTheme.colorScheme.primary)
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
                             TextButton(
                                 onClick = { onDeleteContainer(container.id) },
                                 colors = ButtonDefaults.textButtonColors(

@@ -54,6 +54,9 @@ def main():
     results = []
     results.append(("PE Header & Compatibility Engine", run_suite("PE Parser & Compatibility Engine", "test_pe_scanner.py")))
     results.append(("Container Manager & Sandboxing", run_suite("Container Manager & Sandboxing", "test_container_manager.py")))
+    results.append(("Application Manager & Persistence", run_suite("Application Manager & Persistence", "test_application_manager.py")))
+    results.append(("Security Policy & Sandboxing", run_suite("Security Policy & Sandboxing", "test_security_manager.py")))
+    results.append(("Native C++ JNI Bridge & Compilation", run_suite("Native C++ JNI Bridge & Compilation", "test_native_library.py")))
     results.append(("Host PRoot Sandbox Compatibility", test_host_proot()))
 
     print("\n" + "#" * 60)

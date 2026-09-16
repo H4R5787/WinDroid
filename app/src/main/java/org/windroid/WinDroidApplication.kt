@@ -14,12 +14,24 @@ class WinDroidApplication : Application() {
     lateinit var runtimeEngine: WineRuntimeEngine
         private set
 
+    lateinit var runtimeManager: org.windroid.core.runtime.RuntimeManager
+        private set
+
+    lateinit var applicationManager: org.windroid.core.application.ApplicationManager
+        private set
+
+    lateinit var securityManager: org.windroid.core.security.SecurityManager
+        private set
+
     override fun onCreate() {
         super.onCreate()
         containerManager = ContainerManager(filesDir)
 
         val rootfsDir = File(filesDir, "rootfs")
         runtimeEngine = WineRuntimeEngine(rootfsDir, filesDir)
+        runtimeManager = org.windroid.core.runtime.RuntimeManager(rootfsDir, filesDir)
+        applicationManager = org.windroid.core.application.ApplicationManager(filesDir)
+        securityManager = org.windroid.core.security.SecurityManager(filesDir)
 
         // Initialize default container if none exists
         if (containerManager.listContainers().isEmpty()) {

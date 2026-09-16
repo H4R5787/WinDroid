@@ -41,8 +41,15 @@ fun HomeScreen(
     recentApps: List<InstalledAppItem>,
     onSelectFileToInspect: () -> Unit,
     onLaunchApp: (InstalledAppItem) -> Unit,
+    onNavigateAddApp: () -> Unit,
+    onNavigateInstalledApps: () -> Unit,
     onNavigateContainers: () -> Unit,
-    onNavigateLogs: () -> Unit
+    onNavigateRuntime: () -> Unit,
+    onNavigateGraphics: () -> Unit,
+    onNavigateInput: () -> Unit,
+    onNavigatePerformance: () -> Unit,
+    onNavigateLogs: () -> Unit,
+    onNavigateAbout: () -> Unit
 ) {
     var searchQuery by remember { mutableStateOf("") }
     var selectedFilter by remember { mutableStateOf("All") }
@@ -84,16 +91,26 @@ fun HomeScreen(
                         fontFamily = FontFamily.SansSerif
                     )
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("RAM: 14.8/16GB", fontSize = 11.sp, color = Color.LightGray)
-                        Text("Battery: 85%", fontSize = 11.sp, color = Color.LightGray)
+                        IconButton(onClick = onNavigateAddApp, modifier = Modifier.size(28.dp)) {
+                            Text("➕", fontSize = 14.sp)
+                        }
+                        IconButton(onClick = onNavigateInstalledApps, modifier = Modifier.size(28.dp)) {
+                            Text("🎮", fontSize = 14.sp)
+                        }
+                        IconButton(onClick = onNavigatePerformance, modifier = Modifier.size(28.dp)) {
+                            Text("📊", fontSize = 14.sp)
+                        }
                         IconButton(onClick = onNavigateLogs, modifier = Modifier.size(28.dp)) {
                             Text("📄", fontSize = 14.sp)
                         }
                         IconButton(onClick = onNavigateContainers, modifier = Modifier.size(28.dp)) {
                             Text("⚙️", fontSize = 14.sp)
+                        }
+                        IconButton(onClick = onNavigateAbout, modifier = Modifier.size(28.dp)) {
+                            Text("ℹ️", fontSize = 14.sp)
                         }
                     }
                 }
@@ -193,7 +210,46 @@ fun HomeScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // Subsystem Quick Nav Row
+            LazyRow(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                item {
+                    AssistChip(
+                        onClick = onNavigateContainers,
+                        label = { Text("📦 Containers", fontSize = 11.sp, color = Color.White) }
+                    )
+                }
+                item {
+                    AssistChip(
+                        onClick = onNavigateRuntime,
+                        label = { Text("⚡ Runtime", fontSize = 11.sp, color = Color.White) }
+                    )
+                }
+                item {
+                    AssistChip(
+                        onClick = onNavigateGraphics,
+                        label = { Text("🎨 Graphics", fontSize = 11.sp, color = Color.White) }
+                    )
+                }
+                item {
+                    AssistChip(
+                        onClick = onNavigateInput,
+                        label = { Text("🎮 Controls", fontSize = 11.sp, color = Color.White) }
+                    )
+                }
+                item {
+                    AssistChip(
+                        onClick = onNavigatePerformance,
+                        label = { Text("📊 Telemetry", fontSize = 11.sp, color = Color.White) }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
 
             // Library Header
             Row(
