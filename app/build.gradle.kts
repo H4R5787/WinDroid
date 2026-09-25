@@ -6,6 +6,7 @@ plugins {
 android {
     namespace = "org.windroid"
     compileSdk = 34
+    ndkVersion = "26.1.10909125"
 
     defaultConfig {
         applicationId = "org.windroid"
