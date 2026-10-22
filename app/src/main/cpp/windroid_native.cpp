@@ -15,14 +15,20 @@
 
 #include <dlfcn.h>
 #include <fcntl.h>
+#if defined(__APPLE__)
+#include <util.h>
+#else
 #include <pty.h>
+#endif
 #include <signal.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
+#if defined(__linux__) || defined(__ANDROID__)
 #include <sys/syscall.h>
+#endif
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <termios.h>
@@ -192,8 +198,16 @@ Java_org_windroid_core_nativebridge_NativeBridge_createSharedBuffer(
 
     const char* buf_name = env->GetStringUTFChars(name, nullptr);
 
-    // Use Linux memfd_create syscall
+    // Use Linux memfd_create syscall (or shm_open fallback on macOS host verification)
+#if defined(__NR_memfd_create)
     int fd = syscall(__NR_memfd_create, buf_name, MFD_CLOEXEC | MFD_ALLOW_SEALING);
+#elif defined(SYS_memfd_create)
+    int fd = syscall(SYS_memfd_create, buf_name, MFD_CLOEXEC | MFD_ALLOW_SEALING);
+#elif defined(__APPLE__)
+    int fd = shm_open(buf_name, O_RDWR | O_CREAT, 0600);
+#else
+    int fd = -1;
+#endif
     env->ReleaseStringUTFChars(name, buf_name);
 
     if (fd < 0) {

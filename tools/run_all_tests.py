@@ -6,6 +6,7 @@ Executes all subsystem test suites and validates host PRoot/Linux capabilities.
 
 import sys
 import os
+import shutil
 import subprocess
 import time
 
@@ -27,6 +28,9 @@ def test_host_proot():
     print("\n" + "=" * 60)
     print("  CHECKING HOST PROOT SANDBOX COMPATIBILITY")
     print("=" * 60)
+    if shutil.which("proot") is None:
+        print("--> Host PRoot Execution: SKIPPED (proot binary only required on target Android rootfs)")
+        return "SKIP"
     start_time = time.time()
     try:
         proc = subprocess.run(
@@ -63,9 +67,13 @@ def main():
     print("                   TEST SUMMARY RESULTS                    ")
     print("#" * 60)
     all_passed = True
-    for name, passed in results:
-        status_str = "✓ PASS" if passed else "✗ FAIL"
-        if not passed:
+    for name, status in results:
+        if status is True:
+            status_str = "✓ PASS"
+        elif status == "SKIP":
+            status_str = "⊘ SKIP"
+        else:
+            status_str = "✗ FAIL"
             all_passed = False
         print(f"  {status_str:8} | {name}")
     print("#" * 60)

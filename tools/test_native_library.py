@@ -8,6 +8,7 @@ Validates:
 """
 
 import os
+import sys
 import subprocess
 import unittest
 
@@ -20,11 +21,34 @@ class TestNativeLibrary(unittest.TestCase):
         cls.cpp_source = os.path.join(cls.project_root, "app", "src", "main", "cpp", "windroid_native.cpp")
         cls.so_output = os.path.join(cls.tools_dir, "libwindroid_native_test.so")
 
-        # Compile native library with host g++ / clang++
+        # Locate JNI includes or use fallback headers in tools/include
+        jni_inc_args = []
+        possible_jvm_dirs = [
+            os.environ.get("JAVA_HOME", ""),
+            "/usr/lib/jvm/java-17-openjdk-arm64",
+            "/usr/lib/jvm/default-java",
+        ]
+        found_jvm_include = False
+        for jvm in possible_jvm_dirs:
+            if jvm and os.path.exists(os.path.join(jvm, "include", "jni.h")):
+                jni_inc_args.append("-I" + os.path.join(jvm, "include"))
+                platform_subdir = "darwin" if sys.platform == "darwin" else "linux"
+                plat_path = os.path.join(jvm, "include", platform_subdir)
+                if os.path.exists(plat_path):
+                    jni_inc_args.append("-I" + plat_path)
+                found_jvm_include = True
+                break
+
+        if not found_jvm_include:
+            fallback_include = os.path.join(cls.tools_dir, "include")
+            jni_inc_args.append("-I" + fallback_include)
+
+        compiler = os.environ.get("CXX", "clang++" if sys.platform == "darwin" else "g++")
+
+        # Compile native library with host compiler
         cmd = [
-            "g++", "-shared", "-fPIC", "-std=c++17",
-            "-I/usr/lib/jvm/java-17-openjdk-arm64/include",
-            "-I/usr/lib/jvm/java-17-openjdk-arm64/include/linux",
+            compiler, "-shared", "-fPIC", "-std=c++17",
+            *jni_inc_args,
             "-I" + os.path.join(cls.project_root, "app", "src", "main", "cpp"),
             cls.cpp_source,
             "-o", cls.so_output,
@@ -44,7 +68,8 @@ class TestNativeLibrary(unittest.TestCase):
         self.assertGreater(os.path.getsize(self.so_output), 1024)
 
     def test_exported_jni_symbols(self):
-        res = subprocess.run(["nm", "-D", self.so_output], capture_output=True, text=True)
+        nm_cmd = ["nm", "-g", self.so_output] if sys.platform == "darwin" else ["nm", "-D", self.so_output]
+        res = subprocess.run(nm_cmd, capture_output=True, text=True)
         self.assertEqual(res.returncode, 0)
         symbols = res.stdout
 
