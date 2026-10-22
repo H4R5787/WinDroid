@@ -43,12 +43,16 @@ jobs:
           set -o pipefail
           ./gradlew assembleDebug --stacktrace 2>&1 | tee build.log || (echo "### Gradle Build Failed" >> $GITHUB_STEP_SUMMARY && echo '```' >> $GITHUB_STEP_SUMMARY && tail -n 80 build.log >> $GITHUB_STEP_SUMMARY && echo '```' >> $GITHUB_STEP_SUMMARY && exit 1)
 
-      - name: Upload Build Log On Failure
+      - name: Push Build Log On Failure
         if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-log
-          path: build.log
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -B ci-build-log
+          cp build.log gradle-build.log
+          git add gradle-build.log
+          git commit -m "ci: capture gradle build log"
+          git push origin ci-build-log --force
 
       - name: Verify APK Generated
         run: |
@@ -61,6 +65,18 @@ jobs:
           name: windroid-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
           retention-days: 30
+
+      - name: Commit and Push APK to release-apk branch
+        if: success() && github.ref == 'refs/heads/main'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -B release-apk
+          mkdir -p release
+          cp app/build/outputs/apk/debug/app-debug.apk release/WinDroid-debug.apk
+          git add release/WinDroid-debug.apk
+          git commit -m "build(release): automated WinDroid debug APK"
+          git push origin release-apk --force
 
       - name: Publish GitHub Release
         if: github.ref == 'refs/heads/main'
