@@ -48,15 +48,13 @@ jobs:
 
       - name: Locate and Prepare APK
         run: |
-          echo "=== GRADLE TASKS EXECUTED ==="
-          grep -E "(> Task |BUILD )" build.log || tail -n 40 build.log
-          echo "=== FINDING APK FILES ==="
-          find . -name "*.apk" -ls || true
+          tasks_ran=$(grep -E "> Task " build.log | tail -n 20 | tr '\r\n' '  ')
+          echo "::warning title=TasksRan::$tasks_ran"
+          build_files=$(find app/build -maxdepth 4 | tail -n 30 | tr '\r\n' '  ')
+          echo "::warning title=BuildFiles::$build_files"
           mkdir -p dist
           APK_PATH=$(find . -name "*.apk" -not -path "*/.*" | head -n 1)
           if [ -z "$APK_PATH" ] || [ ! -f "$APK_PATH" ]; then
-            echo "=== DIRECTORY STRUCTURE ==="
-            find app/build -maxdepth 4 || true
             echo "::error::No APK file found anywhere in repository"
             exit 1
           fi
