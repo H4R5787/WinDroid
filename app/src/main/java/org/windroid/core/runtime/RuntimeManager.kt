@@ -140,7 +140,7 @@ class RuntimeManager(
             dir.walkTopDown().maxDepth(3).forEach { file ->
                 if (file.isFile) sizeBytes += file.length()
             }
-        } catch (_: Exception) {}
+        } catch (ignored: Exception) {}
         return sizeBytes / (1024 * 1024)
     }
 }

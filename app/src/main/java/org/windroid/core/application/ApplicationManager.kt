@@ -180,9 +180,9 @@ class ApplicationManager(private val appDataDir: File) {
             val lastPlayed = extractJsonField(b, "lastPlayedTimestamp")?.toLongOrNull() ?: 0L
             val installTime = extractJsonField(b, "installTimestamp")?.toLongOrNull() ?: System.currentTimeMillis()
             val presetName = extractJsonField(b, "box64Preset") ?: "BALANCED"
-            val preset = try { Box64Preset.valueOf(presetName) } catch (_: Exception) { Box64Preset.BALANCED }
+            val preset = try { Box64Preset.valueOf(presetName) } catch (e: Exception) { Box64Preset.BALANCED }
             val backendName = extractJsonField(b, "graphicsBackend") ?: "TURNIP_ADRENO"
-            val backend = try { GraphicsDriverType.valueOf(backendName) } catch (_: Exception) { GraphicsDriverType.TURNIP_ADRENO }
+            val backend = try { GraphicsDriverType.valueOf(backendName) } catch (e: Exception) { GraphicsDriverType.TURNIP_ADRENO }
 
             result.add(
                 InstalledApp(

@@ -37,7 +37,7 @@ object NativeBridge {
         return if (isLoaded) {
             try {
                 getCpuArchitecture()
-            } catch (_: Exception) {
+            } catch (e: Exception) {
                 System.getProperty("os.arch") ?: "aarch64"
             }
         } else {
@@ -49,7 +49,7 @@ object NativeBridge {
         return if (isLoaded) {
             try {
                 detectGpuRenderer()
-            } catch (_: Exception) {
+            } catch (e: Exception) {
                 "Adreno (Turnip Vulkan Ready)"
             }
         } else {

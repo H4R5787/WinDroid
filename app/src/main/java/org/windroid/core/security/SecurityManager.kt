@@ -89,7 +89,7 @@ class SecurityManager(private val appFilesDir: File) {
     fun validatePathIsolation(path: String, allowedPrefixDir: File, mappedDrives: List<String>): Boolean {
         val canonicalTarget = try {
             File(path).canonicalPath
-        } catch (_: Exception) {
+        } catch (e: Exception) {
             return false
         }
 
@@ -101,7 +101,7 @@ class SecurityManager(private val appFilesDir: File) {
         for (drive in mappedDrives) {
             val canonicalDrive = try {
                 File(drive).canonicalPath
-            } catch (_: Exception) {
+            } catch (e: Exception) {
                 continue
             }
             if (canonicalTarget.startsWith(canonicalDrive)) {
@@ -123,7 +123,7 @@ class SecurityManager(private val appFilesDir: File) {
                 }
             }
             digest.digest().joinToString("") { "%02x".format(it) }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
             "UNKNOWN"
         }
     }
