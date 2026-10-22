@@ -40,7 +40,7 @@ jobs:
 
       - name: Build Debug APK
         run: |
-          ./gradlew assembleDebug --stacktrace 2>&1 | tee build.log || {
+          ./gradlew :app:assembleDebug --stacktrace 2>&1 | tee build.log || {
             tail_msg=$(tail -n 30 build.log | tr '\r\n' '  ' | cut -c 1-2000)
             echo "::error title=GradleError::$tail_msg"
             exit 1
@@ -48,11 +48,16 @@ jobs:
 
       - name: Locate and Prepare APK
         run: |
+          echo "=== GRADLE TASKS EXECUTED ==="
+          grep -E "(> Task |BUILD )" build.log || tail -n 40 build.log
+          echo "=== FINDING APK FILES ==="
+          find . -name "*.apk" -ls || true
           mkdir -p dist
-          find app/build/outputs/ -type f -name "*.apk"
-          APK_PATH=$(find app/build/outputs/ -type f -name "*.apk" | head -n 1)
+          APK_PATH=$(find . -name "*.apk" -not -path "*/.*" | head -n 1)
           if [ -z "$APK_PATH" ] || [ ! -f "$APK_PATH" ]; then
-            echo "::error::No APK file found in app/build/outputs/"
+            echo "=== DIRECTORY STRUCTURE ==="
+            find app/build -maxdepth 4 || true
+            echo "::error::No APK file found anywhere in repository"
             exit 1
           fi
           echo "Found APK: $APK_PATH"
