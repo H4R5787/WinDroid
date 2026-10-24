@@ -40,9 +40,13 @@ jobs:
 
       - name: Build Debug APK
         run: |
+          set -o pipefail
           ./gradlew :app:assembleDebug --stacktrace 2>&1 | tee build.log || {
-            tail_msg=$(tail -n 30 build.log | tr '\r\n' '  ' | cut -c 1-2000)
-            echo "::error title=GradleError::$tail_msg"
+            kot_err=$(grep -A 2 -E "(e: |FAILED|Compilation error)" build.log | head -n 15 | tr '\r\n' '  ' | cut -c 1-1500)
+            if [ -z "$kot_err" ]; then
+              kot_err=$(tail -n 25 build.log | tr '\r\n' '  ' | cut -c 1-1500)
+            fi
+            echo "::error title=BuildError::$kot_err"
             exit 1
           }
 
