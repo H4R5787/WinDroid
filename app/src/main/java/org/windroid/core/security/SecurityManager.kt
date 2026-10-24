@@ -1,6 +1,7 @@
 package org.windroid.core.security
 
 import org.windroid.core.pe.PeInspectionResult
+import org.windroid.core.pe.PeSubsystem
 import java.io.File
 import java.security.MessageDigest
 
@@ -60,7 +61,7 @@ class SecurityManager(private val appFilesDir: File) {
         }
 
         // Rule 3: Kernel or native NT device driver
-        if (peResult?.subsystem?.contains("Driver", ignoreCase = true) == true) {
+        if (peResult?.subsystem == PeSubsystem.NATIVE || peResult?.subsystem?.description?.contains("Driver", ignoreCase = true) == true) {
             warnings.add("Executable targets NT kernel-mode driver subsystem. Drivers cannot execute in userspace Wine.")
             risk = RiskLevel.HIGH
         }

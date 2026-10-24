@@ -79,7 +79,7 @@ fun AddAppWizardScreen(
                         Text("Selected: ${inspectedFile.name}", color = Color.White, fontWeight = FontWeight.Medium)
                         Text("Path: ${inspectedFile.absolutePath}", color = Color.Gray, fontSize = 12.sp)
                         if (peResult != null) {
-                            Text("Detected: ${peResult.targetArchitecture} • ${peResult.subsystem}", color = Color(0xFF69F0AE), fontSize = 12.sp)
+                            Text("Detected: ${peResult.architecture.displayName} • ${peResult.subsystem.description}", color = Color(0xFF69F0AE), fontSize = 12.sp)
                         }
                     } else {
                         Text("No executable selected yet.", color = Color.LightGray, fontSize = 13.sp)

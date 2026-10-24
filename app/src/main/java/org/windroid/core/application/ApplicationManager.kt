@@ -3,6 +3,7 @@ package org.windroid.core.application
 import org.windroid.core.container.Box64Preset
 import org.windroid.core.container.ContainerProfile
 import org.windroid.core.graphics.GraphicsDriverType
+import org.windroid.core.pe.GraphicsBackendRequirement
 import org.windroid.core.pe.PeInspectionResult
 import java.io.File
 import java.io.Serializable
@@ -64,16 +65,21 @@ class ApplicationManager(private val appDataDir: File) {
         arguments: String = "",
         category: String = "Games"
     ): InstalledApp {
+        val isDirectX = peInfo?.detectedGraphics in listOf(
+            GraphicsBackendRequirement.DIRECTX_9,
+            GraphicsBackendRequirement.DIRECTX_10_11,
+            GraphicsBackendRequirement.DIRECTX_12
+        )
         val app = InstalledApp(
             title = title,
             exePath = exePath,
             arguments = arguments,
             containerId = container.id,
-            architecture = peInfo?.targetArchitecture ?: container.wineArch,
+            architecture = peInfo?.recommendedWinePrefixArch ?: container.wineArch,
             resolution = container.screenResolution,
             box64Preset = container.box64Preset,
-            dxvkEnabled = peInfo?.isDirectX ?: true,
-            vkd3dEnabled = peInfo?.importedDirectXVersion == "DirectX 12",
+            dxvkEnabled = if (peInfo != null) isDirectX else true,
+            vkd3dEnabled = peInfo?.detectedGraphics == GraphicsBackendRequirement.DIRECTX_12,
             showFpsCounter = container.showFpsCounter,
             category = category
         )
