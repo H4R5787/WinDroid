@@ -41,14 +41,13 @@ jobs:
       - name: Build Debug APK
         run: |
           set -o pipefail
-          ./gradlew :app:assembleDebug --stacktrace 2>&1 | tee build.log || {
-            kot_err=$(grep -A 2 -E "(e: |FAILED|Compilation error)" build.log | head -n 15 | tr '\r\n' '  ' | cut -c 1-1500)
-            if [ -z "$kot_err" ]; then
-              kot_err=$(tail -n 25 build.log | tr '\r\n' '  ' | cut -c 1-1500)
-            fi
-            echo "::error title=BuildError::$kot_err"
-            exit 1
-          }
+          ./gradlew :app:assembleDebug --stacktrace 2>&1 | tee build.log || python3 -c '
+          lines = open("build.log").readlines()
+          errors = [l.strip() for l in lines if "e: " in l or "FAILED" in l or "error" in l.lower()][:10]
+          msg = " ".join(errors) if errors else " ".join([l.strip() for l in lines[-20:]])
+          print(f"::error title=BuildFailure::{msg[:1500]}")
+          exit(1)
+          '
 
       - name: Locate and Prepare APK
         run: |
